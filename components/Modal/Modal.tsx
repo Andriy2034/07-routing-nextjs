@@ -1,11 +1,13 @@
-import {useEffect, type MouseEvent, type ReactNode} from "react";
-import {createPortal} from "react-dom";
-import css from "./Modal.module.css";
+"use client";
 
+import { useEffect, type MouseEvent, type ReactNode } from "react";
+import { createPortal } from "react-dom";
+import css from "./Modal.module.css";
+import { useRouter } from "next/navigation";
 
 interface ModalProps {
-    children: ReactNode;
-    onClose: () => void;
+  children: ReactNode;
+  onClose: () => void;
 }
 
 export default function Modal({ children, onClose }: ModalProps) {
@@ -26,6 +28,9 @@ export default function Modal({ children, onClose }: ModalProps) {
   const handleBackdropClick = (event: MouseEvent<HTMLDivElement>) => {
     if (event.target === event.currentTarget) onClose();
   };
+  const router = useRouter();
+
+  const close = () => router.back();
 
   return createPortal(
     <div
@@ -34,7 +39,7 @@ export default function Modal({ children, onClose }: ModalProps) {
       aria-modal="true"
       onClick={handleBackdropClick}
     >
-      <div className={css.modal}>{children}</div>
+      <div className={css.modal}>{children}<button onClick={close}>Back</button></div>
     </div>,
     document.body,
   );

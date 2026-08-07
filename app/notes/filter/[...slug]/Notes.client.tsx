@@ -1,42 +1,51 @@
 "use client";
 
-import {useState} from "react";
-import {keepPreviousData, useQuery} from "@tanstack/react-query";
-import {useDebouncedCallback} from "use-debounce";
-import {fetchNotes} from "@/lib/api";
+import { useState } from "react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useDebouncedCallback } from "use-debounce";
+import { fetchNotes } from "@/lib/api";
+import type { NoteTag } from "@/types/note";
 import Modal from "@/components/Modal/Modal";
 import NoteForm from "@/components/NoteForm/NoteForm";
 import NoteList from "@/components/NoteList/NoteList";
 import Pagination from "@/components/Pagination/Pagination";
 import SearchBox from "@/components/SearchBox/SearchBox";
-import css from "./NotesPage.module.css";
-
+import css from "../../NotesPage.module.css";
 
 const PER_PAGE = 12;
 
-export default function NotesClient() {
-    const [page, setPage] = useState(1);
-    const [inputValue, setInputValue] = useState("");
-    const [search, setSearch] = useState("");
-    const [isModalOpen, setIsModalOpen] = useState(false);
+interface NotesClientProps {
+  tag?: NoteTag;
+}
 
-    const debouncedSearch = useDebouncedCallback((value: string) => {
-        setSearch(value.trim());
-        setPage(1);
-    }, 500);
+export default function NotesClient({ tag }: NotesClientProps) {
+  const [page, setPage] = useState(1);
+  const [inputValue, setInputValue] = useState("");
+  const [search, setSearch] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const notesQuery = useQuery ({
-        queryKey: ["notes", page, search],
-        queryFn: () => fetchNotes({ page, perPage: PER_PAGE, search}),
-        placeholderData: keepPreviousData,
-    });
+  const debouncedSearch = useDebouncedCallback((value: string) => {
+    setSearch(value.trim());
+    setPage(1);
+  }, 500);
 
-    const notes = notesQuery.data?.notes ?? [];
-    const totalPages = notesQuery.data?.totalPages ?? 0;
+  const notesQuery = useQuery({
+    queryKey: ["notes", page, search, tag],
+    queryFn: () =>
+      fetchNotes({
+        page,
+        perPage: PER_PAGE,
+        search,
+        tag,
+      }),
+    placeholderData: keepPreviousData,
+  });
 
+  const notes = notesQuery.data?.notes ?? [];
+  const totalPages = notesQuery.data?.totalPages ?? 0;
 
-    return (
-        <main className={css.app}>
+  return (
+    <main className={css.app}>
       <header className={css.toolbar}>
         <SearchBox
           value={inputValue}
@@ -45,6 +54,7 @@ export default function NotesClient() {
             debouncedSearch(value);
           }}
         />
+
         {totalPages > 1 && (
           <Pagination
             pageCount={totalPages}
@@ -52,6 +62,7 @@ export default function NotesClient() {
             onPageChange={setPage}
           />
         )}
+
         <button
           type="button"
           className={css.button}
@@ -72,6 +83,5 @@ export default function NotesClient() {
         </Modal>
       )}
     </main>
-
-    );
+  );
 }
