@@ -1,22 +1,35 @@
+"use client";
 
+import { useRouter } from "next/navigation";
+import Modal from "@/components/Modal/Modal";
+import type { Note } from "@/types/note";
+import css from "./NotePreview.module.css";
 
-import {fetchNoteById} from '@/lib/api';
-import Modal from '@/components/Modal/Modal';
+interface NotePreviewClientProps {
+  note: Note;
+}
 
-type Props = {
-  params: Promise<{ id: string }>;
-};
-
-const NotePreview = async ({ params }: Props) => {
-  const { id } = await params;
-  const note = await fetchNoteById(id);
+export default function NotePreviewClient({ note }: NotePreviewClientProps) {
+  const router = useRouter();
+  const handleClose = () => router.back();
 
   return (
-    <Modal onClose={() => window.history.back()}>
-      <h2>{note.title}</h2>
-      <p>{note.content}</p>
+    <Modal onClose={handleClose}>
+      <div className={css.container}>
+        <div className={css.item}>
+          <div className={css.header}>
+            <h2>{note.title}</h2>
+          </div>
+          <p className={css.tag}>{note.tag}</p>
+          <p className={css.content}>{note.content}</p>
+          <p className={css.date}>
+            {new Date(note.createdAt).toLocaleDateString()}
+          </p>
+          <button type="button" className={css.backBtn} onClick={handleClose}>
+            Back
+          </button>
+        </div>
+      </div>
     </Modal>
   );
-};
-
-export default NotePreview;
+}
