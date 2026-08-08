@@ -35,7 +35,9 @@ export default function NoteDetailsClient() {
           <p className={css.tag}>{note.tag}</p>
           <p className={css.content}>{note.content}</p>
           <p className={css.date}>
-            {new Date(note.createdAt).toLocaleDateString()}
+            {new Intl.DateTimeFormat("en-GB", {
+              timeZone: "UTC",
+            }).format(new Date(note.createdAt))}
           </p>
         </div>
       </div>
