@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import css from "./NotePreview.module.css";
 
 import Modal from "@/components/Modal/Modal";
 import type { Note } from "@/types/note";
@@ -14,9 +15,9 @@ export default function NotePreview({ note }: NotePreviewProps) {
 
   return (
     <Modal onClose={() => router.back()}>
-      <h2>{note.title}</h2>
-      <p>{note.tag}</p>
-      <p>{note.content}</p>
+      <h2>{css.title}</h2>
+      <p>{css.tag}</p>
+      <p>{css.content}</p>
       <p>{new Date(note.createdAt).toLocaleDateString()}</p>
     </Modal>
   );
