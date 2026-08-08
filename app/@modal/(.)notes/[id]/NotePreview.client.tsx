@@ -1,17 +1,36 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { useParams, useRouter } from "next/navigation";
+
 import Modal from "@/components/Modal/Modal";
-import type { Note } from "@/types/note";
+import { fetchNoteById } from "@/lib/api";
+
 import css from "./NotePreview.module.css";
 
-interface NotePreviewClientProps {
-  note: Note;
-}
-
-export default function NotePreviewClient({ note }: NotePreviewClientProps) {
+export default function NotePreviewClient() {
   const router = useRouter();
+  const { id } = useParams<{ id: string }>();
+
   const handleClose = () => router.back();
+
+  const {
+    data: note,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["note", id],
+    queryFn: () => fetchNoteById(id),
+    refetchOnMount: false,
+  });
+
+  if (isLoading) {
+    return <p>Loading, please wait...</p>;
+  }
+
+  if (isError || !note) {
+    return <p>Something went wrong.</p>;
+  }
 
   return (
     <Modal onClose={handleClose}>
@@ -20,12 +39,21 @@ export default function NotePreviewClient({ note }: NotePreviewClientProps) {
           <div className={css.header}>
             <h2>{note.title}</h2>
           </div>
+
           <p className={css.tag}>{note.tag}</p>
           <p className={css.content}>{note.content}</p>
+
           <p className={css.date}>
-            {new Date(note.createdAt).toLocaleDateString()}
+            {new Intl.DateTimeFormat("en-GB", {
+              timeZone: "UTC",
+            }).format(new Date(note.createdAt))}
           </p>
-          <button type="button" className={css.backBtn} onClick={handleClose}>
+
+          <button
+            type="button"
+            className={css.backBtn}
+            onClick={handleClose}
+          >
             Back
           </button>
         </div>
